@@ -1,0 +1,7 @@
+To compile and execute server code :-
+    cd ./Server
+    gcc Server.c -o Server.o ;./Server.o ;
+
+To compile and execute client code :-
+    cd ./Client
+    gcc Client.c -o Cient.o ;./Client.o ;
