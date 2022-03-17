@@ -4,16 +4,35 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <ctype.h>
 
-#define PORT 4444
+#define MAX 1024
+#define PORT 4445
+
+void chat(int sock_fd){
+    char buffer[MAX] ;
+    int valread = 0 ;
+
+    while(1) {
+        bzero(buffer,sizeof(buffer)) ;
+        read(sock_fd,buffer,sizeof(buffer)) ;
+        printf("Client : %s \n",buffer) ;
+
+        if(strcmp(buffer,"Exit")==0){
+            break ;
+        }
+    }
+
+}
+
 
 int main(int argc, char const *argv[])
 {
 	int server_fd, new_sock;
-	struct sockaddr_in address;
+	struct sockaddr_in address; //Sever address 
 
     //Network socket creation 
-	if((server_fd = socket(AF_INET,SOCK_STREAM,0))==0) {
+	if((server_fd = socket(AF_INET,SOCK_STREAM,0))<0) {
         perror("Socket failure") ;
         exit(EXIT_FAILURE) ;
     }
@@ -44,14 +63,13 @@ int main(int argc, char const *argv[])
         exit(EXIT_FAILURE) ;
     } 
 
-    printf("Accepted \n") ;
+    printf("Accepted \n\n") ;
 
-    //Sending message to the client 
-	char *hello = "Hello World";
-	write(new_sock,hello,strlen(hello)) ; 
-	printf("Hello message sent to the browser \n");
+    //Communication with client 
+    chat(new_sock) ;
 
 	//Closing sockets
+    printf("\nClosing connection \n") ;
 	close(new_sock) ;
 	close(server_fd) ;
     

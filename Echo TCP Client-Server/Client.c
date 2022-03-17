@@ -7,7 +7,7 @@
 #include <arpa/inet.h>
 
 #define MAX 1024
-#define PORT 4444
+#define PORT 4445
 
 void readline(char * str,int size,char delim){
     int i = 0 ;
@@ -24,53 +24,28 @@ void readline(char * str,int size,char delim){
     return ;
 }
 
-void chat (int sock_fd){
-    char buffer[MAX] = {0} ;
-    int valread = 0 ;
+void chat(int sock_fd){
+    char buffer[MAX] ;
 
-    valread = read(sock_fd,buffer,MAX) ;
-    printf("Server : %s \n",buffer) ; 
-    bzero(buffer,sizeof(buffer)) ;
-
-    printf("Enter name : ") ;
-    readline(buffer,sizeof(buffer),'\n') ;
-
-	send(sock_fd,buffer,strlen(buffer),0) ; 
-    printf("Client : %s \n",buffer) ;
-    bzero(buffer,sizeof(buffer)) ;
-
-    valread = read(sock_fd,buffer,MAX) ;
-    printf("Server : %s \n",buffer) ;
-
-    if(strcmp(buffer,"200 OK")==0){
-        while(strcmp(buffer,".")!=0){
-            printf("Enter message : ") ;
-            bzero(buffer,sizeof(buffer)) ;
-
-            readline(buffer,sizeof(buffer),'\n') ;
-
-            send(sock_fd,buffer,strlen(buffer),0) ; 
-            printf("Client : %s \n",buffer) ;
-        }
-
-    }
-    else if(strcmp(buffer,"500 ERROR")==0){
+    while(1) {
         bzero(buffer,sizeof(buffer)) ;
-        strcpy(buffer,".") ;
-        send(sock_fd,buffer,strlen(buffer),0) ; 
+        printf("Enter string : ") ;
+        readline(buffer,MAX,'\n') ;
+
         printf("Client : %s \n",buffer) ;
+        send(sock_fd,buffer,sizeof(buffer),0) ;
+
+        if(strcmp(buffer,"Exit")==0){
+            break ;
+        }
     }
-
-    bzero(buffer,sizeof(buffer)) ;
-    valread = read(sock_fd,buffer,MAX) ;
-    printf("Server : %s \n",buffer) ; 
-
 }
+
 
 int main(int argc, char const *argv[])
 {
 	int sock_fd, new_sock;
-	struct sockaddr_in address;
+	struct sockaddr_in address; //Server address
 
     //Network socket creation 
 	if((sock_fd = socket(AF_INET,SOCK_STREAM,0))<0) {
@@ -94,8 +69,9 @@ int main(int argc, char const *argv[])
     //Communication with server 
     chat(sock_fd) ;
 
-	//Closing sockets
     printf("\nClosing connection \n") ;
+
+	//Closing sockets
 	close(sock_fd) ;
     
     return 0;

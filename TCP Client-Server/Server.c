@@ -9,6 +9,58 @@
 #define MAX 1024
 #define PORT 4444
 
+void chat(int sock_fd){
+    char buffer[MAX] = {0} ;
+    char name[MAX] ;
+    int valread = 0 ;
+
+    strcpy(buffer,"Hello , what is your name ?") ;
+	send(sock_fd,buffer,strlen(buffer),0) ; 
+    printf("Server : %s \n",buffer) ;
+    bzero(buffer,sizeof(buffer)) ;
+
+    valread = read(sock_fd,buffer,MAX) ;
+    printf("Client : %s \n",buffer) ;
+    strcpy(name,buffer) ;
+
+    char ch = buffer[0] ;
+    bzero(buffer,sizeof(buffer)) ;
+
+    if(isupper(ch)){
+        //First alphabet is uppercase letter
+        strcpy(buffer,"200 OK") ;
+    }
+    else{
+        //First alphabet is lowercase letter
+        strcpy(buffer,"500 ERROR") ;
+    }
+    send(sock_fd,buffer,strlen(buffer),0) ; 
+    printf("Server : %s \n",buffer) ;
+    bzero(buffer,sizeof(buffer)) ;
+
+    valread = read(sock_fd,buffer,MAX) ;
+    printf("Client : %s \n",buffer) ;
+
+    while(1){
+        if(strcmp(buffer,".")==0){
+            break ;
+        }
+
+        bzero(buffer,sizeof(buffer)) ;
+        valread = read(sock_fd,buffer,MAX) ;
+        printf("Client : %s \n",buffer) ;
+
+    }
+
+    bzero(buffer,sizeof(buffer)) ;
+    char message []= "Thank you " ;
+    strcat(message,name) ;
+    strcpy(buffer,message) ;
+	send(sock_fd,buffer,strlen(buffer),0) ; 
+    printf("Server : %s \n",buffer) ;
+
+}
+
 int main(int argc, char const *argv[])
 {
 	int server_fd, new_sock;
@@ -49,58 +101,10 @@ int main(int argc, char const *argv[])
     printf("Accepted \n\n") ;
 
     //Communication with client 
-    char buffer[MAX] = {0} ;
-    int valread = 0 ;
-    char name[MAX] ;
-
-    strcpy(buffer,"Hello , what is your name ?") ;
-	send(new_sock,buffer,strlen(buffer),0) ; 
-    printf("Server : %s \n",buffer) ;
-    bzero(buffer,sizeof(buffer)) ;
-
-    valread = read(new_sock,buffer,MAX) ;
-    printf("Client : %s \n",buffer) ;
-    strcpy(name,buffer) ;
-
-    char ch = buffer[0] ;
-    bzero(buffer,sizeof(buffer)) ;
-
-    if(isupper(ch)){
-        //First alphabet is uppercase letter
-        strcpy(buffer,"200 OK") ;
-    }
-    else{
-        //First alphabet is lowercase letter
-        strcpy(buffer,"500 ERROR") ;
-    }
-    send(new_sock,buffer,strlen(buffer),0) ; 
-    printf("Server : %s \n",buffer) ;
-    bzero(buffer,sizeof(buffer)) ;
-
-    valread = read(new_sock,buffer,MAX) ;
-    printf("Client : %s \n",buffer) ;
-
-    while(1){
-        if(strcmp(buffer,".")==0 || strcmp(buffer,".\n")==0){
-            break ;
-        }
-
-        bzero(buffer,sizeof(buffer)) ;
-        valread = read(new_sock,buffer,MAX) ;
-        printf("Client : %s \n",buffer) ;
-
-    }
-
-    bzero(buffer,sizeof(buffer)) ;
-    char message []= "Thank you " ;
-    strcat(message,name) ;
-    strcpy(buffer,message) ;
-	send(new_sock,buffer,strlen(buffer),0) ; 
-    printf("Server : %s \n",buffer) ;
-
-    printf("\nClosing connection \n") ;
+    chat(new_sock) ;
 
 	//Closing sockets
+    printf("\nClosing connection \n") ;
 	close(new_sock) ;
 	close(server_fd) ;
     

@@ -34,6 +34,50 @@ char* getFilename(char str[]){
     char* ptr = strtok(str," ") ; //First word 
     ptr = strtok(NULL," ") ; //Second word
     return ptr ;
+}
+
+void chat(int new_sock){
+
+    char buffer[MAX] = {0} ;
+    char filename[MAX] = {0} ;
+    int valread = 0 ;
+    valread = read(new_sock,buffer,sizeof(buffer)) ;
+    printf("Client : %s \n",buffer) ;
+    strcpy(filename , getFilename(buffer)) ;
+
+    //Read n bytes from a file :
+    int n = fileSize(filename) ;
+    char message[100] ;
+    FILE* fp = fopen(filename,"r") ;
+    if(fp==NULL){
+        printf("Server : File not found ! \n") ;
+    }
+    else{
+        if(n==0){
+            printf("Server : File empty ! \n") ;
+        }
+        else if(n>10){
+            n= 10 ;
+        }
+        else{
+            n-- ;
+        }
+
+        int i =0;
+        char ch = fgetc(fp) ;
+        while(i<n){
+            message[i] = ch ;
+            i++ ;
+
+            ch = fgetc(fp) ;
+        }
+        message[i] = '\0' ;
+        fclose(fp) ;    
+    }
+
+    printf("Server : %s\n",message) ;
+
+    send(new_sock,message,n,0) ;
 
 }
 
@@ -81,51 +125,10 @@ int main(int argc, char const *argv[])
     printf("Accepted \n\n") ;
 
     //Communication with client 
-
-    char buffer[MAX] = {0} ;
-    char filename[MAX] = {0} ;
-    int valread = 0 ;
-    valread = read(new_sock,buffer,sizeof(buffer)) ;
-    printf("Client : %s \n",buffer) ;
-    strcpy(filename , getFilename(buffer)) ;
-
-    //Read n bytes from a file :
-    int n = fileSize(filename) ;
-    char message[100] ;
-    FILE* fp = fopen(filename,"r") ;
-    if(fp==NULL){
-        printf("Server : File not found ! \n") ;
-    }
-    else{
-        if(n==0){
-            printf("Server : File empty ! \n") ;
-        }
-        else if(n>10){
-            n= 10 ;
-        }
-        else{
-            n-- ;
-        }
-
-        int i =0;
-        char ch = fgetc(fp) ;
-        while(i<n){
-            message[i] = ch ;
-            i++ ;
-
-            ch = fgetc(fp) ;
-        }
-        message[i] = '\0' ;
-        fclose(fp) ;    
-    }
-
-    printf("Server : %s\n",message) ;
-
-    send(new_sock,message,n,0) ;
-    
-    printf("\nClosing connection \n") ;
+    chat(new_sock) ;    
 
 	//Closing sockets
+    printf("\nClosing connection \n") ;
 	close(new_sock) ;
 	close(server_fd) ;
     
