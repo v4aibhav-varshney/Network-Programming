@@ -1,6 +1,6 @@
 # Network-Programming
 
-This repository contains programs which illustrate the concept of network programming via sockets and system calls in linux.
+This repository contains programs with following specifications  :- 
 
 1.) Simple TCP server : Localhost web server to display message in the browser .
 
